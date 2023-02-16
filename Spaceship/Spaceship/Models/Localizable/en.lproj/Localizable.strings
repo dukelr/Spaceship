@@ -1,0 +1,11 @@
+
+"highscore" = "highscore";
+"start" = "start";
+"settings" = "settings";
+"nickname" = "nickname";
+"warning" = "nickname must contain 3+ characters";
+"sound" = "sound";
+"color" = "color";
+"speed" = "speed";
+"score" = "your score";
+"control" = "control";

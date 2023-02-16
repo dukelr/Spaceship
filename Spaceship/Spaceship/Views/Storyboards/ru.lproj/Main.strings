@@ -1,0 +1,66 @@
+
+/* Class = "UILabel"; text = "fast"; ObjectID = "2zV-4O-gVG"; */
+"2zV-4O-gVG.text" = "fast";
+
+/* Class = "UILabel"; text = "SPACEMAN"; ObjectID = "7i8-hu-C3s"; */
+"7i8-hu-C3s.text" = "SPACEMAN";
+
+/* Class = "UILabel"; text = "COLOR"; ObjectID = "87H-B8-L8i"; */
+"87H-B8-L8i.text" = "COLOR";
+
+/* Class = "UILabel"; text = "Nickname must contain 3+ characters"; ObjectID = "8b2-mh-rII"; */
+"8b2-mh-rII.text" = "Nickname must contain 3+ characters";
+
+/* Class = "UILabel"; text = "HIGHSCORE"; ObjectID = "9Zf-0G-qxa"; */
+"9Zf-0G-qxa.text" = "HIGHSCORE";
+
+/* Class = "UILabel"; text = "0"; ObjectID = "E3h-8c-mNg"; */
+"E3h-8c-mNg.text" = "0";
+
+/* Class = "UILabel"; text = "1"; ObjectID = "FEO-mS-j9B"; */
+"FEO-mS-j9B.text" = "1";
+
+/* Class = "UILabel"; text = "Username"; ObjectID = "JaF-Ff-xBJ"; */
+"JaF-Ff-xBJ.text" = "Username";
+
+/* Class = "UILabel"; text = "SPACE"; ObjectID = "KQO-rw-Su3"; */
+"KQO-rw-Su3.text" = "SPACE";
+
+/* Class = "UILabel"; text = "SHIP"; ObjectID = "KvX-tW-bS0"; */
+"KvX-tW-bS0.text" = "SHIP";
+
+/* Class = "UILabel"; text = "0"; ObjectID = "RvU-Bc-a4N"; */
+"RvU-Bc-a4N.text" = "0";
+
+/* Class = "UILabel"; text = "GAME OVER"; ObjectID = "VKC-Hm-XM1"; */
+"VKC-Hm-XM1.text" = "GAME OVER";
+
+/* Class = "UILabel"; text = "SETTING"; ObjectID = "YZp-Pj-d9m"; */
+"YZp-Pj-d9m.text" = "SETTING";
+
+/* Class = "UITextField"; placeholder = "ENTER YOUR NICKNAME"; ObjectID = "fPa-8R-AG8"; */
+"fPa-8R-AG8.placeholder" = "ENTER YOUR NICKNAME";
+
+/* Class = "UILabel"; text = "0"; ObjectID = "fWe-V0-9ch"; */
+"fWe-V0-9ch.text" = "0";
+
+/* Class = "UILabel"; text = "START"; ObjectID = "jIP-NA-vzG"; */
+"jIP-NA-vzG.text" = "START";
+
+/* Class = "UILabel"; text = "NICKNAME"; ObjectID = "kMo-1I-cy5"; */
+"kMo-1I-cy5.text" = "NICKNAME";
+
+/* Class = "UILabel"; text = "YOUR SCORE"; ObjectID = "mvV-5i-bsx"; */
+"mvV-5i-bsx.text" = "YOUR SCORE";
+
+/* Class = "UILabel"; text = "01.01.2020"; ObjectID = "niH-cy-FEu"; */
+"niH-cy-FEu.text" = "01.01.2020";
+
+/* Class = "UILabel"; text = "SOUND"; ObjectID = "se3-mQ-ubM"; */
+"se3-mQ-ubM.text" = "SOUND";
+
+/* Class = "UILabel"; text = "0"; ObjectID = "vTY-aG-0sz"; */
+"vTY-aG-0sz.text" = "0";
+
+/* Class = "UILabel"; text = "SPEED"; ObjectID = "xdU-zV-8FY"; */
+"xdU-zV-8FY.text" = "SPEED";

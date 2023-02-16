@@ -1,0 +1,12 @@
+{
+  "images" : [
+    {
+      "filename" : "laser_gree.png",
+      "idiom" : "universal"
+    }
+  ],
+  "info" : {
+    "author" : "xcode",
+    "version" : 1
+  }
+}
