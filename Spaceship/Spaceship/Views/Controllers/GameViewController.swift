@@ -61,7 +61,7 @@ protocol GameViewControllerDelegate: AnyObject {
     func gameViewControllerClosed()
 }
 
-class GameViewController: UIViewController {
+final class GameViewController: UIViewController {
     
     //MARK: - IBOutlets
     
@@ -264,7 +264,7 @@ class GameViewController: UIViewController {
     //MARK: - flow funcs
     
     private func addSubviews() {
-        yourScoreLabel.text = LocalizationKey.score.rawValue.localized()
+        yourScoreLabel.text = .localized(.score)
         gameOverLabel.bordered()
         gameOverLabel.rounded()
         gameOverLabel.setBorderColor(gameOverLabel.textColor)
@@ -276,6 +276,7 @@ class GameViewController: UIViewController {
         addBackButton()
         addLifeView()
         addCoinsLabel()
+        
         if control != .gyroscope {
             addDirectionButtons()
             addShootButton()
@@ -914,7 +915,7 @@ class GameViewController: UIViewController {
         ) { [weak self] timer in
             guard let self = self else { return }
 
-            if self.spaceView.contains(item) {
+            if !self.spaceView.contains(item) {
                 timer.invalidate()
             }
             if self.shieldImagesArray.contains(item.image) ||
@@ -955,8 +956,8 @@ class GameViewController: UIViewController {
     }
     
     private func moveItem() {
-        if !life { return }
-        guard let randomItem = Item.allCases.randomElement() else { return }
+        guard life,
+              let randomItem = Item.allCases.randomElement() else { return }
         
         switch randomItem {
         case .shield:
@@ -974,8 +975,7 @@ class GameViewController: UIViewController {
                 moveItem()
                 return
             }
-        default:
-            break
+        default: break
         }
         var item = UIImageView()
         if lifeView.frame.width < fullLifeWidth * 0.3 {

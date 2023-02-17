@@ -1,7 +1,7 @@
 
 import UIKit
 
-class MenuViewController: UIViewController {
+final class MenuViewController: UIViewController {
     
     //MARK: - IBOutlets
     
@@ -95,9 +95,9 @@ class MenuViewController: UIViewController {
         nicknameLabel.text = user.nickname
         coinsLabel.text = "\(user.coins)"
         scoreLabel.text = "\(user.record)"
-        highscoreLabel.text = LocalizationKey.highscore.rawValue.localized()
-        startLabel.text = LocalizationKey.start.rawValue.localized()
-        settingLabel.text = LocalizationKey.settings.rawValue.localized()
+        highscoreLabel.text = .localized(.highscore)
+        startLabel.text = .localized(.start)
+        settingLabel.text = .localized(.settings)
         spaceshipView.bordered()
         spaceshipView.rounded()
         spaceshipView.setBorderColor(.lightGray)

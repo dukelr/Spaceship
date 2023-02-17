@@ -9,3 +9,5 @@
 "speed" = "speed";
 "score" = "your score";
 "control" = "control";
+"fast" = "fast";
+"slow" = "slow";

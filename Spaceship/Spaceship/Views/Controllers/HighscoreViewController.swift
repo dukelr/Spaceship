@@ -3,7 +3,7 @@ import UIKit
 import RxSwift
 import RxCocoa
 
-class HighscoreViewController: UIViewController {
+final class HighscoreViewController: UIViewController {
 
     //MARK: - IBOutlets
 
@@ -30,10 +30,8 @@ class HighscoreViewController: UIViewController {
     
     //MARK: - flow funcs
 
-    private func setupRx() {
-        guard let dataSource = viewModel.getDataSource() else { return }
-        
-        dataSource.bind(
+    private func setupRx() {        
+        viewModel.dataSource.bind(
             to: resultTableView.rx.items(
                 cellIdentifier: ResultTableViewCell.identifier,
                 cellType: ResultTableViewCell.self

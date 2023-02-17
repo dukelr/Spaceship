@@ -19,7 +19,7 @@ protocol SettingsViewControllerDelegate: AnyObject {
     func settingsViewControllerClosed()
 }
 
-class SettingsViewController: UIViewController {
+final class SettingsViewController: UIViewController {
     
     //MARK: - IBOutlets
     
@@ -103,12 +103,12 @@ class SettingsViewController: UIViewController {
             self.user = user
         }
         nicknameTextField.text = user.nickname
-        nicknameLabel.text = LocalizationKey.nickname.rawValue.localized()
-        speedLabel.text = LocalizationKey.speed.rawValue.localized()
-        colorLabel.text = LocalizationKey.color.rawValue.localized()
-        soundLabel.text = LocalizationKey.sound.rawValue.localized()
-        controlLabel.text = LocalizationKey.control.rawValue.localized()
-        warningLabel.text = LocalizationKey.warning.rawValue.localized()
+        nicknameLabel.text = .localized(.nickname)
+        speedLabel.text = .localized(.speed)
+        colorLabel.text = .localized(.color)
+        soundLabel.text = .localized(.sound)
+        controlLabel.text = .localized(.control)
+        warningLabel.text = .localized(.warning)
         spaceshipImageView.image = UIImage(named: user.settings.spaceship)
         laserImageView.image = UIImage(named: user.settings.laser)
         

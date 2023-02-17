@@ -1,7 +1,7 @@
 
 import Foundation
 
-class Result: Codable {
+final class Result: Codable {
     
     var nickname: String
     var score: Int

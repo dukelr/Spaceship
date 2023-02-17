@@ -1,7 +1,7 @@
 
 import Foundation
 
-class Setting: Codable {
+final class Setting: Codable {
     
     var control: String
     var speed: String

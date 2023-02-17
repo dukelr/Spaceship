@@ -5,7 +5,7 @@ private extension String {
     static let fast = "hare"
 }
 
-class ResultTableViewCell: UITableViewCell {
+final class ResultTableViewCell: UITableViewCell {
 
     //MARK: - IBOutlets
     
@@ -22,21 +22,17 @@ class ResultTableViewCell: UITableViewCell {
     //MARK: - flow funcs
     
     func configure(with viewModel: ResultCellViewModel) {
-        let result = viewModel.getResult()
-        let index = viewModel.getIndex()
+        nicknameLabel.text = viewModel.result.nickname
+        scoreLabel.text = "\(viewModel.result.score)"
+        dateLabel.text = viewModel.result.date
+        placeLabel.text = "\(viewModel.index + 1)"
         
-        print(index)
-        nicknameLabel.text = result.nickname
-        scoreLabel.text = "\(result.score)"
-        dateLabel.text = result.date
-        placeLabel.text = "\(index + 1)"
-        
-        if result.speed == .fast {
-            speedLabel.text = "Fast"
+        if viewModel.result.speed == .fast {
+            speedLabel.text = .localized(.fast)
         } else {
-            speedLabel.text = "Slow"
+            speedLabel.text = .localized(.slow)
         }
-        switch index {
+        switch viewModel.index {
         case 0:
             placeLabel.textColor = .customGreen
         case 1:
@@ -48,28 +44,4 @@ class ResultTableViewCell: UITableViewCell {
             placeLabel.font = .astonaut
         }
     }
-//
-//    func configure(with result: Result, indexCell: Int){
-//        nicknameLabel.text = result.nickname
-//        scoreLabel.text = "\(result.score)"
-//        dateLabel.text = result.date
-//        placeLabel.text = "\(indexCell + 1)"
-//
-//        if result.speed == "hare" {
-//            speedLabel.text = "Fast"
-//        } else {
-//            speedLabel.text = "Slow"
-//        }
-//        switch indexCell {
-//        case 0:
-//            placeLabel.textColor = .customGreen
-//        case 1:
-//            placeLabel.textColor = .customYellow
-//        case 2:
-//            placeLabel.textColor = .customRed
-//        default:
-//            placeLabel.textColor = .lightGray
-//            placeLabel.font = .astonaut
-//        }
-//    }
 }

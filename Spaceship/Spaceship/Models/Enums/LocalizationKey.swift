@@ -12,4 +12,6 @@ enum LocalizationKey: String {
     case speed
     case control
     case score
+    case fast
+    case slow
 }

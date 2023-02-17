@@ -5,13 +5,17 @@ import RxSwift
 
 final class HighscoreViewModel {
     
-    private var dataSource = BehaviorRelay<[ResultCellViewModel]>(value: [])
+    private(set) var dataSource = BehaviorRelay<[ResultCellViewModel]>(value: [])
     
-    func getDataSource() -> BehaviorRelay<[ResultCellViewModel]>? {
-        guard let results = StorageManager.shared.loadResults() else { return nil }
-                
+    init() {
+        createDataSource()
+    }
+    
+    private func createDataSource() {
         var viewModelsArray = [ResultCellViewModel]()
-        
+
+        guard let results = StorageManager.shared.loadResults() else { return }
+
         results.enumerated().forEach { index, result in
             viewModelsArray.append(
                 ResultCellViewModel(
@@ -21,6 +25,5 @@ final class HighscoreViewModel {
             )
         }
         dataSource.accept(viewModelsArray)
-        return dataSource
     }
 }
