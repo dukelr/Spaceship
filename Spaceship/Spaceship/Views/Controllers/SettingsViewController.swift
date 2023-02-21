@@ -76,18 +76,22 @@ final class SettingsViewController: UIViewController {
     //MARK: - IBActions
     
     @IBAction func backButtonPressed(_ sender: UIButton) {
+        SoundManager.shared.playSound(.button)
         backToMenuController()
     }
     
     @IBAction func controlButtonPressed(_ sender: UIButton) {
+        SoundManager.shared.playSound(.button)
         changeControl()
     }
     
     @IBAction func speedButtonPressed(_ sender: UIButton) {
+        SoundManager.shared.playSound(.button)
         changeSpeed()
     }
     
     @IBAction func colorButtonPressed(_ sender: UIButton) {
+        SoundManager.shared.playSound(.button)
         changeColor()
         changeAlphaSpaceship()
     }

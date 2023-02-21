@@ -34,6 +34,9 @@
 		ABBE5AE32937CD6500741BCB /* UserDefaults+extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABBE5AE22937CD6500741BCB /* UserDefaults+extensions.swift */; };
 		ABBE5B0F2937EA4600741BCB /* StorageManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABBE5B0E2937EA4600741BCB /* StorageManager.swift */; };
 		ABBE5B8E2938AA0300741BCB /* astronaut.otf in Resources */ = {isa = PBXBuildFile; fileRef = ABBE5B8D2938AA0300741BCB /* astronaut.otf */; };
+		ABF8A52D29A3F4CB007CB723 /* SoundManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABF8A52C29A3F4CB007CB723 /* SoundManager.swift */; };
+		ABF8A52F29A40610007CB723 /* sound_laser.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = ABF8A52E29A40610007CB723 /* sound_laser.mp3 */; };
+		ABF8A53129A406B0007CB723 /* sound_button.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = ABF8A53029A406B0007CB723 /* sound_button.mp3 */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -70,6 +73,9 @@
 		ABBE5B0E2937EA4600741BCB /* StorageManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StorageManager.swift; sourceTree = "<group>"; };
 		ABBE5B8D2938AA0300741BCB /* astronaut.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = astronaut.otf; sourceTree = "<group>"; };
 		ABF8A4D2299DBAC8007CB723 /* Spaceship.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Spaceship.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		ABF8A52C29A3F4CB007CB723 /* SoundManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SoundManager.swift; sourceTree = "<group>"; };
+		ABF8A52E29A40610007CB723 /* sound_laser.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = sound_laser.mp3; sourceTree = "<group>"; };
+		ABF8A53029A406B0007CB723 /* sound_button.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = sound_button.mp3; sourceTree = "<group>"; };
 		F2E05565F7DE314C023A533F /* Pods-Spaceship.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Spaceship.debug.xcconfig"; path = "Target Support Files/Pods-Spaceship/Pods-Spaceship.debug.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -106,6 +112,7 @@
 		AB1BE3AA299592B4009AB392 /* Models */ = {
 			isa = PBXGroup;
 			children = (
+				ABF8A52329A3EDD0007CB723 /* Sounds */,
 				ABF8A49C299DB465007CB723 /* Localizable */,
 				AB1BE3AD299592F4009AB392 /* Managers */,
 				ABBE5AD429377AD400741BCB /* Classes */,
@@ -139,6 +146,7 @@
 			isa = PBXGroup;
 			children = (
 				ABBE5B0E2937EA4600741BCB /* StorageManager.swift */,
+				ABF8A52C29A3F4CB007CB723 /* SoundManager.swift */,
 			);
 			path = Managers;
 			sourceTree = "<group>";
@@ -234,6 +242,15 @@
 			path = Localizable;
 			sourceTree = "<group>";
 		};
+		ABF8A52329A3EDD0007CB723 /* Sounds */ = {
+			isa = PBXGroup;
+			children = (
+				ABF8A52E29A40610007CB723 /* sound_laser.mp3 */,
+				ABF8A53029A406B0007CB723 /* sound_button.mp3 */,
+			);
+			path = Sounds;
+			sourceTree = "<group>";
+		};
 		AFEDA4020842B7BF24A91D0B /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
@@ -305,7 +322,9 @@
 			files = (
 				ABBE5ACB29377A7F00741BCB /* LaunchScreen.storyboard in Resources */,
 				ABAF0DD229770E13006EEB3C /* Localizable.strings in Resources */,
+				ABF8A53129A406B0007CB723 /* sound_button.mp3 in Resources */,
 				ABBE5B8E2938AA0300741BCB /* astronaut.otf in Resources */,
+				ABF8A52F29A40610007CB723 /* sound_laser.mp3 in Resources */,
 				ABBE5AC829377A7F00741BCB /* Assets.xcassets in Resources */,
 				AB98079729413B180031C47E /* disk.ttf in Resources */,
 				ABBE5AC629377A7E00741BCB /* Main.storyboard in Resources */,
@@ -366,6 +385,7 @@
 				AB1BE3A7299583E3009AB392 /* HighscoreViewModel.swift in Sources */,
 				AB203EA42954FE7F00FB0864 /* UIFont+extensions.swift in Sources */,
 				AB203E822954B66C00FB0864 /* UIColor+extensions.swift in Sources */,
+				ABF8A52D29A3F4CB007CB723 /* SoundManager.swift in Sources */,
 				ABBE5AD829377AF900741BCB /* GameViewController.swift in Sources */,
 				ABBE5ABF29377A7E00741BCB /* AppDelegate.swift in Sources */,
 				ABBE5AC129377A7E00741BCB /* SceneDelegate.swift in Sources */,

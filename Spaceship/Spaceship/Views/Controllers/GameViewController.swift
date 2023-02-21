@@ -92,9 +92,7 @@ final class GameViewController: UIViewController {
     private let shootButton = UIButton()
     private let jumpButton = UIButton()
     private let spaceshipImageView = UIImageView()
-    
     private var sizeForSpaceship = CGSize()
-    
     private let laserImageView = UIImageView()
     private let shieldImageView = UIImageView()
     private let fireImageView = UIImageView()
@@ -228,7 +226,7 @@ final class GameViewController: UIViewController {
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        addSubviews()
+        setupSubviews()
     }
     
     //MARK: - IBActions
@@ -238,7 +236,7 @@ final class GameViewController: UIViewController {
     }
     
     @IBAction func repeatButtonPressed(_ sender: UIButton) {
-        addSubviews()
+        setupSubviews()
     }
     
     @IBAction func leftButtonPressed(_ sender: UIButton) {
@@ -263,7 +261,7 @@ final class GameViewController: UIViewController {
     
     //MARK: - flow funcs
     
-    private func addSubviews() {
+    private func setupSubviews() {
         yourScoreLabel.text = .localized(.score)
         gameOverLabel.bordered()
         gameOverLabel.rounded()
@@ -297,6 +295,7 @@ final class GameViewController: UIViewController {
         animateSpace()
         animateFire()
         animateShield()
+//        SoundManager.shared.playSound(.spaceship, repeats: life)
         startGameLabel.isHidden = false
         
         Timer.scheduledTimer(
@@ -841,6 +840,8 @@ final class GameViewController: UIViewController {
     private func shootLaser() {
         if spaceshipImageView.frame.width != sizeForSpaceship.width { return }
         if !laserImageView.isHidden {
+            SoundManager.shared.playSound(.laser)
+            
             UIView.animate(
                 withDuration: .second,
                 delay: .zero,
@@ -1085,6 +1086,7 @@ final class GameViewController: UIViewController {
     private func checkLife() {
         if !life {
             lifeTimer.invalidate()
+            SoundManager.shared.stopSound()
             itemImageViewsArray.forEach { item in
                 item.removeFromSuperview()
             }

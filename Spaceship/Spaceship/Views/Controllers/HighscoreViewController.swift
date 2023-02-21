@@ -25,6 +25,7 @@ final class HighscoreViewController: UIViewController {
     //MARK: - IBActions
     
     @IBAction func backButtonPressed(_ sender: UIButton) {
+        SoundManager.shared.playSound(.button)
         navigationController?.popViewController(animated: true)
     }
     

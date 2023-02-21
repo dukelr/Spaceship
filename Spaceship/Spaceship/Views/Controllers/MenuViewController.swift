@@ -30,6 +30,7 @@ final class MenuViewController: UIViewController {
     //MARK: - IBActions
     
     @IBAction func highscoreButtonPressed(_ sender: UIButton) {
+        playSoundButton()
         showHighscoreController()
         changeAlphaView(highscoreView)
     }
@@ -39,6 +40,7 @@ final class MenuViewController: UIViewController {
     }
     
     @IBAction func startButtonPressed(_ sender: UIButton) {
+        playSoundButton()
         startGame()
         changeAlphaView(startView)
     }
@@ -48,6 +50,7 @@ final class MenuViewController: UIViewController {
     }
     
     @IBAction func settingButtonPressed(_ sender: UIButton) {
+        playSoundButton()
         showSettingController()
         changeAlphaView(settingView)
     }
@@ -101,6 +104,10 @@ final class MenuViewController: UIViewController {
         spaceshipView.bordered()
         spaceshipView.rounded()
         spaceshipView.setBorderColor(.lightGray)
+    }
+    
+    private func playSoundButton() {
+        SoundManager.shared.playSound(.button)
     }
 }
 
