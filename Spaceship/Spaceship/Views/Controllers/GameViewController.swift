@@ -105,6 +105,7 @@ final class GameViewController: UIViewController {
     private var scoreBonus = Int()
     private var coins = Int()
     private var intersectionCheck = true
+    private var sound = Bool()
     private var speed = Speed.fast.rawValue
     private var control = Control.buttons
     private var user = User.getDefaultUser()
@@ -295,9 +296,9 @@ final class GameViewController: UIViewController {
         animateSpace()
         animateFire()
         animateShield()
-//        SoundManager.shared.playSound(.spaceship, repeats: life)
         startGameLabel.isHidden = false
-        
+        playSound(.spaceship)
+     
         Timer.scheduledTimer(
             withTimeInterval: .second,
             repeats: true
@@ -337,6 +338,11 @@ final class GameViewController: UIViewController {
         if let user = StorageManager.shared.loadUser() {
             self.user = user
         }
+        if user.settings.sound {
+            sound = true
+        } else {
+            sound = false
+        }
         if user.settings.speed == .fast {
             speed = Speed.fast.rawValue
         } else {
@@ -374,9 +380,13 @@ final class GameViewController: UIViewController {
             delay: .zero,
             options: .curveLinear
         ) { [weak self] in
-            self?.moveSpace(.down)
+            guard let self = self else { return }
+            
+            self.moveSpace(.down)
         } completion: { [weak self] _ in
-            self?.moveSpace(.up)
+            guard let self = self else { return }
+
+            self.moveSpace(.up)
         }
     }
     
@@ -588,7 +598,9 @@ final class GameViewController: UIViewController {
             life = false
         }
         UIView.animate(withDuration: .standartForAnimate) { [weak self] in
-            self?.lifeView.frame.size.width -= step
+            guard let self = self else { return }
+            
+            self.lifeView.frame.size.width -= step
         }
     }
     
@@ -703,25 +715,37 @@ final class GameViewController: UIViewController {
         case .up:
             if intersectionCheck {
                 UIView.animate(withDuration: .second) { [weak self] in
-                    self?.intersectionCheck = false
-                    self?.moveSpaceshipWithButtons(.up)
+                    guard let self = self else { return }
+
+                    self.intersectionCheck = false
+                    self.moveSpaceshipWithButtons(.up)
                 } completion: { [weak self]_ in
-                    self?.animateSpaseshipWithButtons(.down)
+                    guard let self = self else { return }
+
+                    self.animateSpaseshipWithButtons(.down)
                 }
             }
         case .down:
             UIView.animate(withDuration: .second) { [weak self] in
-                self?.moveSpaceshipWithButtons(.down)
+                guard let self = self else { return }
+
+                self.moveSpaceshipWithButtons(.down)
             } completion: { [weak self] _ in
-                self?.intersectionCheck = true
+                guard let self = self else { return }
+
+                self.intersectionCheck = true
             }
         case .right:
             UIView.animate(withDuration: .standartForAnimate) { [weak self] in
-                self?.moveSpaceshipWithButtons(.right)
+                guard let self = self else { return }
+
+                self.moveSpaceshipWithButtons(.right)
             }
         case .left:
             UIView.animate(withDuration: .standartForAnimate) { [weak self] in
-                self?.moveSpaceshipWithButtons(.left)
+                guard let self = self else { return }
+
+                self.moveSpaceshipWithButtons(.left)
             }
         }
     }
@@ -754,16 +778,19 @@ final class GameViewController: UIViewController {
             
             
             UIView.animate(withDuration: .standartForAnimate) { [weak self] in
+                guard let self = self else { return }
+
                 let step = CGFloat(40)
-                self?.moveSpaceshipWithGyroscope(distance: info.x * step)
+                self.moveSpaceshipWithGyroscope(distance: info.x * step)
             }
         }
         motionManager.gyroUpdateInterval = .second / 10
         motionManager.startGyroUpdates(to: .main) { [weak self] data, error in
-            guard let info = data?.rotationRate else { return }
+            guard let info = data?.rotationRate,
+                  let self = self else { return }
             
             if info.x > 3 {
-                self?.animateSpaseshipWithButtons(.up)
+                self.animateSpaseshipWithButtons(.up)
             }
         }
     }
@@ -847,9 +874,13 @@ final class GameViewController: UIViewController {
                 delay: .zero,
                 options: .curveLinear
             ) { [weak self] in
-                self?.moveLaser(.up)
+                guard let self = self else { return }
+                
+                self.moveLaser(.up)
             } completion: { [weak self] _ in
-                self?.moveLaser(.down)
+                guard let self = self else { return }
+
+                self.moveLaser(.down)
             }
         }
     }
@@ -1150,6 +1181,7 @@ final class GameViewController: UIViewController {
         itemImageViewsArray.forEach { item in
             if let itemPresentationFrame = item.layer.presentation()?.frame,
                spaceshipPresentationFrame.intersects(itemPresentationFrame) {
+                
                 if shieldImagesArray.contains(item.image) {
                     shieldImageView.isHidden = false
                 }
@@ -1164,9 +1196,11 @@ final class GameViewController: UIViewController {
                     }
                 }
                 if coinImagesArray.contains(item.image) {
+                    playSound(.coin)
                     coins += 1
                 }
                 if starImagesArray.contains(item.image) {
+                    playSound(.star)
                     scoreBoost += 1
                 }
                 score += scoreBonus * scoreBoost
@@ -1202,6 +1236,7 @@ final class GameViewController: UIViewController {
     }
     
     private func backToMenuController() {
+        SoundManager.shared.stopSound()
         lifeTimer.invalidate()
         spaceView.subviews.forEach { subview in
             subview.removeFromSuperview()
@@ -1219,6 +1254,12 @@ final class GameViewController: UIViewController {
             index += 1
         }
         imageView.image = array[index]
+    }
+    
+    private func playSound(_ soundName: SoundName) {
+        if sound {
+            SoundManager.shared.playSound(soundName)
+        }
     }
     
     private func saveResultGame() {

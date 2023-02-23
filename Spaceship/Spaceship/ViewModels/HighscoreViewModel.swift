@@ -6,6 +6,7 @@ import RxSwift
 final class HighscoreViewModel {
     
     private(set) var dataSource = BehaviorRelay<[ResultCellViewModel]>(value: [])
+    var sound: Bool?
     
     init() {
         createDataSource()

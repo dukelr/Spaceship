@@ -13,6 +13,15 @@ private enum Control: String {
     case gyroscope
 }
 
+private enum Sound: String {
+    case off = "speaker.slash"
+    case on = "speaker.wave.2"
+}
+
+private extension CGFloat {
+    static let offset = 3.0
+}
+
 //MARK: - Protocols
 
 protocol SettingsViewControllerDelegate: AnyObject {
@@ -27,6 +36,8 @@ final class SettingsViewController: UIViewController {
     @IBOutlet weak var nicknameLabel: UILabel!
     @IBOutlet weak var nicknameTextField: UITextField!
     @IBOutlet weak var soundLabel: UILabel!
+    @IBOutlet weak var soundButton: UIButton!
+    @IBOutlet weak var soundButtonWidthCoinstraint: NSLayoutConstraint!
     @IBOutlet weak var controlLabel: UILabel!
     @IBOutlet weak var controlButton: UIButton!
     @IBOutlet weak var controlButtonWidthConstraint: NSLayoutConstraint!
@@ -43,6 +54,7 @@ final class SettingsViewController: UIViewController {
     
     static let identifier = "SettingsViewController"
     weak var delegate: SettingsViewControllerDelegate?
+    private var sound = true
     private var speed = Speed.slow
     private var control = Control.buttons
     private var user = User.getDefaultUser()
@@ -76,22 +88,27 @@ final class SettingsViewController: UIViewController {
     //MARK: - IBActions
     
     @IBAction func backButtonPressed(_ sender: UIButton) {
-        SoundManager.shared.playSound(.button)
+        playSoundButton()
         backToMenuController()
     }
     
+    @IBAction func soundButtonPressed(_ sender: UIButton) {
+        playSoundButton()
+        changeSound()
+    }
+    
     @IBAction func controlButtonPressed(_ sender: UIButton) {
-        SoundManager.shared.playSound(.button)
+        playSoundButton()
         changeControl()
     }
     
     @IBAction func speedButtonPressed(_ sender: UIButton) {
-        SoundManager.shared.playSound(.button)
+        playSoundButton()
         changeSpeed()
     }
     
     @IBAction func colorButtonPressed(_ sender: UIButton) {
-        SoundManager.shared.playSound(.button)
+        playSoundButton()
         changeColor()
         changeAlphaSpaceship()
     }
@@ -116,8 +133,23 @@ final class SettingsViewController: UIViewController {
         spaceshipImageView.image = UIImage(named: user.settings.spaceship)
         laserImageView.image = UIImage(named: user.settings.laser)
         
+        if user.settings.sound {
+            sound = true
+            soundButton.setBackgroundImage(
+                UIImage(systemName: Sound.on.rawValue),
+                for: .normal
+            )
+        } else {
+            sound = false
+            soundButton.setBackgroundImage(
+                UIImage(systemName: Sound.off.rawValue),
+                for: .normal
+            )
+            soundButtonWidthCoinstraint.constant -= .offset * 2.5
+        }
         if user.settings.speed == Speed.fast.rawValue {
             speed = .fast
+            speedButtonHeigthConstraint.constant += .offset
         } else {
             speed = .slow
         }
@@ -141,14 +173,35 @@ final class SettingsViewController: UIViewController {
     
     private func saveSetting() {
         guard let nickname = nicknameTextField.text else { return }
-        let setting = Setting(
+        
+        let settings = Setting(
             control: control.rawValue,
             speed: speed.rawValue,
             spaceship: spaceshipImageNamesArray[index],
-            laser: laserImageNamesArray[index])
+            laser: laserImageNamesArray[index],
+            sound: sound
+        )
         user.nickname = nickname
-        user.settings = setting
+        user.settings = settings
         StorageManager.shared.saveUser(user)
+    }
+    
+    private func changeSound() {
+        if sound {
+            soundButtonWidthCoinstraint.constant -= .offset * 2.5
+            soundButton.setBackgroundImage(
+                UIImage(systemName: Sound.off.rawValue),
+                for: .normal
+            )
+        } else {
+            soundButtonWidthCoinstraint.constant += .offset * 2.5
+            soundButton.setBackgroundImage(
+                UIImage(systemName: Sound.on.rawValue),
+                for: .normal
+            )
+        }
+        sound.toggle()
+        saveSetting()
     }
     
     private func changeControl() {
@@ -157,20 +210,25 @@ final class SettingsViewController: UIViewController {
         } else {
             control = .gyroscope
         }
-        controlButton.setBackgroundImage(UIImage(systemName: control.rawValue), for: .normal)
+        controlButton.setBackgroundImage(
+            UIImage(systemName: control.rawValue),
+            for: .normal
+        )
         saveSetting()
     }
     
     private func changeSpeed() {
-        let offset = CGFloat(3)
         if speed == .fast {
             speed = .slow
-            speedButtonHeigthConstraint.constant -= offset
+            speedButtonHeigthConstraint.constant -= .offset
         } else {
             speed = .fast
-            speedButtonHeigthConstraint.constant += offset
+            speedButtonHeigthConstraint.constant += .offset
         }
-        speedButton.setBackgroundImage(UIImage(systemName: speed.rawValue), for: .normal)
+        speedButton.setBackgroundImage(
+            UIImage(systemName: speed.rawValue),
+            for: .normal
+        )
         saveSetting()
     }
     
@@ -189,17 +247,28 @@ final class SettingsViewController: UIViewController {
         let duration = 0.05
         if spaceshipView.alpha == 1 {
             UIView.animate(withDuration: duration) { [weak self] in
-                self?.spaceshipView.alpha = 0.1
+                guard let self = self else { return }
+                
+                self.spaceshipView.alpha = 0.1
             }
         } else {
             UIView.animate(withDuration: duration) { [weak self] in
-                self?.spaceshipView.alpha = 1
+                guard let self = self else { return }
+
+                self.spaceshipView.alpha = 1
             }
+        }
+    }
+    
+    private func playSoundButton() {
+        if sound {
+            SoundManager.shared.playSound(.button)
         }
     }
 
     private func backToMenuController() {
         if !warningLabel.isHidden { return }
+        
         delegate?.settingsViewControllerClosed()
         navigationController?.popToRootViewController(animated: true)
     }

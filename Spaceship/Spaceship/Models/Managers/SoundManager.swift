@@ -10,33 +10,37 @@ final class SoundManager {
     
     static let shared = SoundManager()
     
-    private var player: AVAudioPlayer?
-    
-    enum SoundName: String {
-        case spaceship = "sound_spaceship"
-        case laser = "sound_laser"
-        case button = "sound_button"
-    }
-    
-    func playSound(_ soundName: SoundName, repeats: Bool = false) {
+    private var otherSoundAudioPlayer: AVAudioPlayer?
+    private var spaceshipAudioPlayer: AVAudioPlayer?
+        
+    func playSound(_ soundName: SoundName) {
         guard let fileName = Bundle.main.path(forResource: soundName.rawValue, ofType: .soundType) else { return }
         
         let url = URL(fileURLWithPath: fileName)
         try? AVAudioSession.sharedInstance().setCategory(.playback)
         try? AVAudioSession.sharedInstance().setActive(true)
-        player = try? AVAudioPlayer(contentsOf: url)
-        player?.volume = 1
-        player?.prepareToPlay()
-        player?.play()
         
-        if repeats {
-            player?.numberOfLoops = -1
+        if soundName == .spaceship {
+            playSpaceshipSound(with: url)
+            return
         }
+        otherSoundAudioPlayer = try? AVAudioPlayer(contentsOf: url)
+        otherSoundAudioPlayer?.volume = 1
+        otherSoundAudioPlayer?.prepareToPlay()
+        otherSoundAudioPlayer?.play()
+        
+    }
+    
+    private func playSpaceshipSound(with url: URL) {
+        spaceshipAudioPlayer = try? AVAudioPlayer(contentsOf: url)
+        spaceshipAudioPlayer?.numberOfLoops = -1
+        spaceshipAudioPlayer?.volume = 1
+        spaceshipAudioPlayer?.prepareToPlay()
+        spaceshipAudioPlayer?.play()
     }
     
     func stopSound() {
-//        players?.forEach { player in
-            player?.stop()
-//        }
+        spaceshipAudioPlayer?.stop()
+        otherSoundAudioPlayer?.stop()
     }
 }

@@ -520,15 +520,18 @@
                                                                 <nil key="highlightedColor"/>
                                                             </label>
                                                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="3FD-2q-yZu">
-                                                                <rect key="frame" x="35.333333333333329" y="73.333333333333314" width="40" height="28"/>
+                                                                <rect key="frame" x="38.666666666666671" y="74.333333333333314" width="33" height="26.333333333333329"/>
                                                                 <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                                                 <constraints>
                                                                     <constraint firstAttribute="height" constant="30" id="Rah-0p-yOM"/>
-                                                                    <constraint firstAttribute="width" constant="40" id="t99-7q-pC1"/>
+                                                                    <constraint firstAttribute="width" constant="33" id="t99-7q-pC1"/>
                                                                 </constraints>
                                                                 <color key="tintColor" white="0.66666666669999997" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                                                 <inset key="imageEdgeInsets" minX="0.0" minY="0.0" maxX="2.2250738585072014e-308" maxY="0.0"/>
-                                                                <state key="normal" backgroundImage="speaker.wave.3" catalog="system"/>
+                                                                <state key="normal" backgroundImage="speaker.wave.2" catalog="system"/>
+                                                                <connections>
+                                                                    <action selector="soundButtonPressed:" destination="ivE-eG-iXS" eventType="touchUpInside" id="qdV-J1-HpA"/>
+                                                                </connections>
                                                             </button>
                                                         </subviews>
                                                         <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
@@ -756,6 +759,8 @@
                         <outlet property="laserImageView" destination="PWi-ti-XwC" id="gD7-HK-aqL"/>
                         <outlet property="nicknameLabel" destination="kMo-1I-cy5" id="7Zv-lm-9Fe"/>
                         <outlet property="nicknameTextField" destination="fPa-8R-AG8" id="tl3-xS-jc6"/>
+                        <outlet property="soundButton" destination="3FD-2q-yZu" id="CIF-Re-UQr"/>
+                        <outlet property="soundButtonWidthCoinstraint" destination="t99-7q-pC1" id="dx9-ZQ-N39"/>
                         <outlet property="soundLabel" destination="se3-mQ-ubM" id="9XD-nF-KtY"/>
                         <outlet property="spaceshipImageView" destination="2Ai-HX-gCT" id="0bS-wH-I8M"/>
                         <outlet property="spaceshipView" destination="QVM-K1-l1m" id="puw-sq-xws"/>
@@ -1105,7 +1110,7 @@
         <image name="space" width="1600" height="900"/>
         <image name="spaceman" width="1600" height="1600"/>
         <image name="spaceship_white" width="457" height="1024"/>
-        <image name="speaker.wave.3" catalog="system" width="128" height="84"/>
+        <image name="speaker.wave.2" catalog="system" width="128" height="88"/>
         <image name="speedometer" catalog="system" width="128" height="123"/>
         <image name="star" catalog="system" width="128" height="116"/>
         <namedColor name="color_blue">

@@ -63,17 +63,21 @@ final class MenuViewController: UIViewController {
     
     private func showHighscoreController() {
         guard let controller = storyboard?.instantiateViewController(withIdentifier: HighscoreViewController.identifier) as? HighscoreViewController else { return }
+        
+        controller.viewModel.sound = user.settings.sound
         navigationController?.pushViewController(controller, animated: true)
     }
     
     private func showSettingController() {
         guard let controller = storyboard?.instantiateViewController(withIdentifier: SettingsViewController.identifier) as? SettingsViewController else { return }
+        
         controller.delegate = self
         navigationController?.pushViewController(controller, animated: true)
     }
     
     private func startGame() {
         guard let controller = storyboard?.instantiateViewController(withIdentifier: GameViewController.identifier) as? GameViewController else { return }
+        
         controller.delegate = self
         navigationController?.pushViewController(controller, animated: true)
     }
@@ -107,7 +111,9 @@ final class MenuViewController: UIViewController {
     }
     
     private func playSoundButton() {
-        SoundManager.shared.playSound(.button)
+        if user.settings.sound {
+            SoundManager.shared.playSound(.button)
+        }
     }
 }
 

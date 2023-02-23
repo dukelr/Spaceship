@@ -34,9 +34,13 @@
 		ABBE5AE32937CD6500741BCB /* UserDefaults+extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABBE5AE22937CD6500741BCB /* UserDefaults+extensions.swift */; };
 		ABBE5B0F2937EA4600741BCB /* StorageManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABBE5B0E2937EA4600741BCB /* StorageManager.swift */; };
 		ABBE5B8E2938AA0300741BCB /* astronaut.otf in Resources */ = {isa = PBXBuildFile; fileRef = ABBE5B8D2938AA0300741BCB /* astronaut.otf */; };
+		ABE05ACB29A7062E00E1D7D8 /* sound_spaceship.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = ABE05ACA29A7062E00E1D7D8 /* sound_spaceship.mp3 */; };
+		ABE05ACD29A7186600E1D7D8 /* SoundName.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABE05ACC29A7186600E1D7D8 /* SoundName.swift */; };
 		ABF8A52D29A3F4CB007CB723 /* SoundManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABF8A52C29A3F4CB007CB723 /* SoundManager.swift */; };
 		ABF8A52F29A40610007CB723 /* sound_laser.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = ABF8A52E29A40610007CB723 /* sound_laser.mp3 */; };
-		ABF8A53129A406B0007CB723 /* sound_button.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = ABF8A53029A406B0007CB723 /* sound_button.mp3 */; };
+		ABF8A53329A46828007CB723 /* sound_coin.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = ABF8A53229A46828007CB723 /* sound_coin.mp3 */; };
+		ABF8A53529A468FC007CB723 /* sound_button.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = ABF8A53429A468FC007CB723 /* sound_button.mp3 */; };
+		ABF8A53729A4698B007CB723 /* sound_star.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = ABF8A53629A4698B007CB723 /* sound_star.mp3 */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -72,10 +76,14 @@
 		ABBE5AE22937CD6500741BCB /* UserDefaults+extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UserDefaults+extensions.swift"; sourceTree = "<group>"; };
 		ABBE5B0E2937EA4600741BCB /* StorageManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StorageManager.swift; sourceTree = "<group>"; };
 		ABBE5B8D2938AA0300741BCB /* astronaut.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = astronaut.otf; sourceTree = "<group>"; };
+		ABE05ACA29A7062E00E1D7D8 /* sound_spaceship.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = sound_spaceship.mp3; sourceTree = "<group>"; };
+		ABE05ACC29A7186600E1D7D8 /* SoundName.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SoundName.swift; sourceTree = "<group>"; };
 		ABF8A4D2299DBAC8007CB723 /* Spaceship.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Spaceship.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		ABF8A52C29A3F4CB007CB723 /* SoundManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SoundManager.swift; sourceTree = "<group>"; };
 		ABF8A52E29A40610007CB723 /* sound_laser.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = sound_laser.mp3; sourceTree = "<group>"; };
-		ABF8A53029A406B0007CB723 /* sound_button.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = sound_button.mp3; sourceTree = "<group>"; };
+		ABF8A53229A46828007CB723 /* sound_coin.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = sound_coin.mp3; sourceTree = "<group>"; };
+		ABF8A53429A468FC007CB723 /* sound_button.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = sound_button.mp3; sourceTree = "<group>"; };
+		ABF8A53629A4698B007CB723 /* sound_star.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = sound_star.mp3; sourceTree = "<group>"; };
 		F2E05565F7DE314C023A533F /* Pods-Spaceship.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Spaceship.debug.xcconfig"; path = "Target Support Files/Pods-Spaceship/Pods-Spaceship.debug.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -163,6 +171,7 @@
 			isa = PBXGroup;
 			children = (
 				ABAF0DD929771062006EEB3C /* LocalizationKey.swift */,
+				ABE05ACC29A7186600E1D7D8 /* SoundName.swift */,
 			);
 			path = Enums;
 			sourceTree = "<group>";
@@ -246,7 +255,10 @@
 			isa = PBXGroup;
 			children = (
 				ABF8A52E29A40610007CB723 /* sound_laser.mp3 */,
-				ABF8A53029A406B0007CB723 /* sound_button.mp3 */,
+				ABE05ACA29A7062E00E1D7D8 /* sound_spaceship.mp3 */,
+				ABF8A53429A468FC007CB723 /* sound_button.mp3 */,
+				ABF8A53629A4698B007CB723 /* sound_star.mp3 */,
+				ABF8A53229A46828007CB723 /* sound_coin.mp3 */,
 			);
 			path = Sounds;
 			sourceTree = "<group>";
@@ -321,10 +333,13 @@
 			buildActionMask = 2147483647;
 			files = (
 				ABBE5ACB29377A7F00741BCB /* LaunchScreen.storyboard in Resources */,
+				ABF8A53329A46828007CB723 /* sound_coin.mp3 in Resources */,
 				ABAF0DD229770E13006EEB3C /* Localizable.strings in Resources */,
-				ABF8A53129A406B0007CB723 /* sound_button.mp3 in Resources */,
+				ABF8A53529A468FC007CB723 /* sound_button.mp3 in Resources */,
 				ABBE5B8E2938AA0300741BCB /* astronaut.otf in Resources */,
 				ABF8A52F29A40610007CB723 /* sound_laser.mp3 in Resources */,
+				ABF8A53729A4698B007CB723 /* sound_star.mp3 in Resources */,
+				ABE05ACB29A7062E00E1D7D8 /* sound_spaceship.mp3 in Resources */,
 				ABBE5AC829377A7F00741BCB /* Assets.xcassets in Resources */,
 				AB98079729413B180031C47E /* disk.ttf in Resources */,
 				ABBE5AC629377A7E00741BCB /* Main.storyboard in Resources */,
@@ -380,6 +395,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				ABE05ACD29A7186600E1D7D8 /* SoundName.swift in Sources */,
 				ABBE5ADC29377B0E00741BCB /* HighscoreViewController.swift in Sources */,
 				AB1BE3AF299596B4009AB392 /* Int+extensions.swift in Sources */,
 				AB1BE3A7299583E3009AB392 /* HighscoreViewModel.swift in Sources */,

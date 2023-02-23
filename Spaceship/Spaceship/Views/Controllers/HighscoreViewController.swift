@@ -12,7 +12,7 @@ final class HighscoreViewController: UIViewController {
     //MARK: - var/let
     
     static let identifier = "HighscoreViewController"
-    private let viewModel = HighscoreViewModel()
+    var viewModel = HighscoreViewModel()
     private let disposeBag = DisposeBag()
     
     //MARK: - lifecycle funcs
@@ -25,7 +25,7 @@ final class HighscoreViewController: UIViewController {
     //MARK: - IBActions
     
     @IBAction func backButtonPressed(_ sender: UIButton) {
-        SoundManager.shared.playSound(.button)
+        playSoundButton()
         navigationController?.popViewController(animated: true)
     }
     
@@ -40,6 +40,14 @@ final class HighscoreViewController: UIViewController {
         ) { index, model, cell in
             cell.configure(with: model)
         }.disposed(by: disposeBag)
+    }
+    
+    private func playSoundButton() {
+        if let sound = viewModel.sound,
+           sound {
+            SoundManager.shared.playSound(.button)
+
+        }
     }
 }
 
