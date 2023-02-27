@@ -13,13 +13,12 @@ final class HighscoreViewController: UIViewController {
     
     static let identifier = "HighscoreViewController"
     var viewModel = HighscoreViewModel()
-    private let disposeBag = DisposeBag()
     
     //MARK: - lifecycle funcs
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        setupRx()
+        viewModel.setupDataSource(for: resultTableView)
     }
     
     //MARK: - IBActions
@@ -30,23 +29,11 @@ final class HighscoreViewController: UIViewController {
     }
     
     //MARK: - flow funcs
-
-    private func setupRx() {        
-        viewModel.dataSource.bind(
-            to: resultTableView.rx.items(
-                cellIdentifier: ResultTableViewCell.identifier,
-                cellType: ResultTableViewCell.self
-            )
-        ) { index, model, cell in
-            cell.configure(with: model)
-        }.disposed(by: disposeBag)
-    }
     
     private func playSoundButton() {
         if let sound = viewModel.sound,
            sound {
             SoundManager.shared.playSound(.button)
-
         }
     }
 }
