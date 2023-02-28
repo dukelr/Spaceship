@@ -1047,12 +1047,14 @@ final class GameViewController: UIViewController {
                 height: size
             )
         )
-        if Int.random(in: 0...1) == 0 {
-            let index = Int.random(in: .zero...firstMeteoriteImagesArray.count - 1)
-            meteoriteImageView.image = firstMeteoriteImagesArray[index]
+        if Bool.random() {
+            meteoriteImageView.image = firstMeteoriteImagesArray[
+                Int.random(in: .zero...firstMeteoriteImagesArray.count - 1)
+            ]
         } else {
-            let index = Int.random(in: .zero...secondMeteoriteImagesArray.count - 1)
-            meteoriteImageView.image = secondMeteoriteImagesArray[index]
+            meteoriteImageView.image = secondMeteoriteImagesArray[
+                Int.random(in: .zero...secondMeteoriteImagesArray.count - 1)
+            ]
         }
         meteoriteImageViewsArray.append(meteoriteImageView)
         spaceView.insertSubview(meteoriteImageView, belowSubview: spaceshipImageView)
@@ -1060,7 +1062,7 @@ final class GameViewController: UIViewController {
     }
     
     private func animateMeteorite(_ meteorite: UIImageView) {
-        let timeInterval = TimeInterval.random(in: 0.06...0.09)
+        let timeInterval = TimeInterval.random(in: 0.05...0.1)
         
         Timer.scheduledTimer(
             withTimeInterval: timeInterval,
