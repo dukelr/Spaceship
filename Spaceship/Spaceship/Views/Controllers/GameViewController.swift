@@ -29,6 +29,13 @@ private enum Control: String {
     case gyroscope
 }
 
+private enum AnimationPhase {
+    case small
+    case medium
+    case normal
+    case retrieval
+}
+
 //MARK: - private extensions
 
 private extension UIImage {
@@ -275,14 +282,17 @@ final class GameViewController: UIViewController {
         addBackButton()
         addLifeView()
         addCoinsLabel()
-        
-        if control != .gyroscope {
-            addDirectionButtons()
-            addShootButton()
-            addJumpButton()
-        } else {
-            addTapRecognizer()
-        }
+        addDirectionButtons()
+        addShootButton()
+        addJumpButton()
+        addTapRecognizer()
+//        if control != .gyroscope {
+//            addDirectionButtons()
+//            addShootButton()
+//            addJumpButton()
+//        } else {
+//            addTapRecognizer()
+//        }
         addSpaceship()
         addFire()
         addShield()
@@ -294,11 +304,10 @@ final class GameViewController: UIViewController {
     private func readyStartGame() {
         life = true
         animateSpace()
-        animateFire()
-        animateShield()
+        animateShieldAndFire()
         startGameLabel.isHidden = false
         playSound(.spaceship)
-     
+        
         Timer.scheduledTimer(
             withTimeInterval: .second,
             repeats: true
@@ -320,8 +329,12 @@ final class GameViewController: UIViewController {
     }
     
     private func startGame() {
+        if control == .buttons {
+            bottomContainerView.isHidden = false
+        } else {
+            bottomContainerView.removeFromSuperview()
+        }
         topContainerView.isHidden = false
-        bottomContainerView.isHidden = false
         startGameLabel.isHidden = true
         gameOverView.isHidden = true
         repeatButton.isHidden = true
@@ -385,7 +398,7 @@ final class GameViewController: UIViewController {
             self.moveSpace(.down)
         } completion: { [weak self] _ in
             guard let self = self else { return }
-
+            
             self.moveSpace(.up)
         }
     }
@@ -437,10 +450,7 @@ final class GameViewController: UIViewController {
         bottomContainerView.frame = topContainerView.frame
         bottomContainerView.frame.origin.y = spaceView.frame.height - bottomContainerView.frame.height
         bottomContainerView.isHidden = true
-        
-        if control != .gyroscope {
-            spaceView.addSubview(bottomContainerView)
-        }
+        spaceView.addSubview(bottomContainerView)
     }
     
     private func addDirectionButtons() {
@@ -460,7 +470,7 @@ final class GameViewController: UIViewController {
         leftButton.tintColor = .lightGray
         leftButton.setTitleColor(.darkGray, for: .highlighted)
         bottomContainerView.addSubview(leftButton)
-        
+
         rightButton.frame = leftButton.frame
         rightButton.frame.origin.x = bottomContainerView.frame.width - size * 1.5
         rightButton.addTarget(
@@ -716,35 +726,35 @@ final class GameViewController: UIViewController {
             if intersectionCheck {
                 UIView.animate(withDuration: .second) { [weak self] in
                     guard let self = self else { return }
-
+                    
                     self.intersectionCheck = false
                     self.moveSpaceshipWithButtons(.up)
                 } completion: { [weak self]_ in
                     guard let self = self else { return }
-
+                    
                     self.animateSpaseshipWithButtons(.down)
                 }
             }
         case .down:
             UIView.animate(withDuration: .second) { [weak self] in
                 guard let self = self else { return }
-
+                
                 self.moveSpaceshipWithButtons(.down)
             } completion: { [weak self] _ in
                 guard let self = self else { return }
-
+                
                 self.intersectionCheck = true
             }
         case .right:
             UIView.animate(withDuration: .standartForAnimate) { [weak self] in
                 guard let self = self else { return }
-
+                
                 self.moveSpaceshipWithButtons(.right)
             }
         case .left:
             UIView.animate(withDuration: .standartForAnimate) { [weak self] in
                 guard let self = self else { return }
-
+                
                 self.moveSpaceshipWithButtons(.left)
             }
         }
@@ -779,7 +789,7 @@ final class GameViewController: UIViewController {
             
             UIView.animate(withDuration: .standartForAnimate) { [weak self] in
                 guard let self = self else { return }
-
+                
                 let step = CGFloat(40)
                 self.moveSpaceshipWithGyroscope(distance: info.x * step)
             }
@@ -809,21 +819,6 @@ final class GameViewController: UIViewController {
         spaceView.addSubview(shieldImageView)
     }
     
-    private func animateShield() {
-        Timer.scheduledTimer(
-            withTimeInterval: .standartForRepeatTimer,
-            repeats: true
-        ) { [weak self] timer in
-            guard let self = self else { return }
-            
-            self.selectImage(self.shieldImageView, in: self.shieldImagesArray)
-            
-            if !self.life {
-                timer.invalidate()
-            }
-        }
-    }
-    
     private func addFire() {
         let size = spaceshipImageView.frame.width / 6
         fireImageView.frame = CGRect(
@@ -836,14 +831,15 @@ final class GameViewController: UIViewController {
         spaceView.addSubview(fireImageView)
     }
     
-    private func animateFire() {
+    private func animateShieldAndFire() {
         Timer.scheduledTimer(
             withTimeInterval: .standartForRepeatTimer / 2,
             repeats: true
         ) { [weak self] timer in
             guard let self = self else { return }
-
+            
             self.selectImage(self.fireImageView, in: self.fireImagesArray)
+            self.selectImage(self.shieldImageView, in: self.shieldImagesArray)
             
             if !self.life {
                 timer.invalidate()
@@ -879,7 +875,7 @@ final class GameViewController: UIViewController {
                 self.moveLaser(.up)
             } completion: { [weak self] _ in
                 guard let self = self else { return }
-
+                
                 self.moveLaser(.down)
             }
         }
@@ -888,7 +884,8 @@ final class GameViewController: UIViewController {
     private func moveLaser(_ direction: Direction) {
         if direction == .up {
             laserImageView.frame.origin.y = -laserImageView.frame.height
-        } else {
+        }
+        if direction == .down {
             laserImageView.frame.origin.x = spaceshipImageView.frame.origin.x + spaceshipImageView.frame.width / 2 - laserImageView.frame.width / 2
             laserImageView.frame.origin.y = spaceshipImageView.frame.origin.y
             laserImageView.isHidden = true
@@ -930,12 +927,12 @@ final class GameViewController: UIViewController {
     }
     
     private func animateItem(_ item: UIImageView) {
-        var phase = 0
+        var phase = AnimationPhase.normal
         let center = item.center
         let normalSize = item.frame.size
         let midSize = CGSize(
-            width: normalSize.width * 0.7,
-            height: normalSize.height * 0.7
+            width: normalSize.width * 0.75,
+            height: normalSize.height * 0.75
         )
         let minSize = CGSize(
             width: normalSize.width / 2,
@@ -946,7 +943,7 @@ final class GameViewController: UIViewController {
             repeats: true
         ) { [weak self] timer in
             guard let self = self else { return }
-
+            
             if !self.spaceView.contains(item) {
                 timer.invalidate()
             }
@@ -955,23 +952,20 @@ final class GameViewController: UIViewController {
                 
                 UIView.animate(withDuration: .standartForAnimate) {
                     switch phase {
-                    case 0:
+                    case .normal:
                         item.frame.size = normalSize
-                        item.center = center
-                        phase = 1
-                    case 1:
+                        phase = .medium
+                    case .medium:
                         item.frame.size = midSize
-                        item.center = center
-                        phase = 2
-                    case 2:
+                        phase = .small
+                    case .small:
                         item.frame.size = minSize
-                        item.center = center
-                        phase = 3
-                    default:
+                        phase = .retrieval
+                    case .retrieval:
                         item.frame.size = midSize
-                        item.center = center
-                        phase = 0
+                        phase = .normal
                     }
+                    item.center = center
                 }
                 self.selectImage(item, in: self.shieldImagesArray)
             }
@@ -992,21 +986,11 @@ final class GameViewController: UIViewController {
               let randomItem = Item.allCases.randomElement() else { return }
         
         switch randomItem {
-        case .shield:
-            if !shieldImageView.isHidden {
-                moveItem()
-                return
-            }
-        case .laser:
-            if !laserImageView.isHidden {
-                moveItem()
-                return
-            }
-        case .heart:
-            if lifeView.frame.width > fullLifeWidth * 0.75 {
-                moveItem()
-                return
-            }
+        case .heart where lifeView.frame.width > fullLifeWidth * 0.75,
+             .shield where !shieldImageView.isHidden,
+             .laser where !laserImageView.isHidden:
+            moveItem()
+            return
         default: break
         }
         var item = UIImageView()
@@ -1023,11 +1007,11 @@ final class GameViewController: UIViewController {
             options: .curveLinear
         ) { [weak self] in
             guard let self = self else { return }
-
+            
             item.frame.origin.y = self.spaceView.frame.height
         } completion: { [weak self] _ in
             guard let self = self else { return }
-
+            
             item.removeFromSuperview()
             self.itemImageViewsArray = self.itemImageViewsArray.filter { $0 != item }
             self.moveItem()
@@ -1092,7 +1076,7 @@ final class GameViewController: UIViewController {
             options: .curveLinear
         ) { [weak self] in
             guard let self = self else { return }
-
+            
             meteorite.frame.origin.y = self.spaceView.frame.height
             
             Timer.scheduledTimer(
@@ -1100,7 +1084,7 @@ final class GameViewController: UIViewController {
                 repeats: true
             ) { [weak self] timer in
                 guard let self = self else { return }
-
+                
                 if let meteoritePresentationFrame = meteorite.layer.presentation()?.frame,
                    meteoritePresentationFrame.origin.y > self.spaceView.frame.height / 5 {
                     self.moveMeteorite()
@@ -1109,7 +1093,7 @@ final class GameViewController: UIViewController {
             }
         } completion: { [weak self] _ in
             guard let self = self else { return }
-
+            
             meteorite.removeFromSuperview()
             self.meteoriteImageViewsArray = self.meteoriteImageViewsArray.filter { $0 != meteorite }
         }
@@ -1193,7 +1177,7 @@ final class GameViewController: UIViewController {
                 if heartImagesArray.contains(item.image) {
                     UIView.animate(withDuration: .standartForAnimate) { [weak self] in
                         guard let self = self else { return }
-
+                        
                         self.lifeView.frame.size.width = self.fullLifeWidth
                     }
                 }
@@ -1218,7 +1202,7 @@ final class GameViewController: UIViewController {
             repeats: true
         ) { [weak self] _ in
             guard let self = self else { return }
-
+            
             self.checkLife()
             self.moveLife()
             self.animateSpaceshipWithGyroscope()
