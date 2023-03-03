@@ -313,7 +313,7 @@ final class GameViewController: UIViewController {
             repeats: true
         ) { [weak self] timer in
             guard let self = self else { return }
-            
+
             switch self.startGameLabel.text {
             case String.three:
                 self.startGameLabel.text = .two
