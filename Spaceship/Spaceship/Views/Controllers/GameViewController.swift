@@ -288,7 +288,7 @@ final class GameViewController: UIViewController {
         addShield()
         addLaser()
         addStartGameLabel()
-        readyStartGame()
+        prepareStartGame()
     }
     
     private func checkSetting() {
@@ -310,7 +310,7 @@ final class GameViewController: UIViewController {
         spaceshipImageView.image = UIImage(named: user.settings.spaceship)
     }
     
-    private func readyStartGame() {
+    private func prepareStartGame() {
         life = true
         animateSpace()
         animateShieldAndFire()
