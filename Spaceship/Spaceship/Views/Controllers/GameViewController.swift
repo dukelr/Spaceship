@@ -94,12 +94,9 @@ final class GameViewController: UIViewController {
     private let coinsLabel = UILabel()
     private let backButton = UIButton()
     private let bottomContainerView = UIView()
-    private let leftButton = UIButton()
     private let rightButton = UIButton()
-    private let shootButton = UIButton()
-    private let jumpButton = UIButton()
     private let spaceshipImageView = UIImageView()
-    private var sizeForSpaceship = CGSize()
+    private var normalSizeForSpaceship = CGSize()
     private let laserImageView = UIImageView()
     private let shieldImageView = UIImageView()
     private let fireImageView = UIImageView()
@@ -115,7 +112,7 @@ final class GameViewController: UIViewController {
     private var sound = Bool()
     private var speed = Speed.fast.rawValue
     private var control = Control.buttons
-    private var user = User.getDefaultUser()
+    private var user = StorageManager.shared.loadUser() ?? User.getDefaultUser()
     private var itemImageViewsArray = [UIImageView]()
     private var meteoriteImageViewsArray = [UIImageView]()
     private let firstMeteoriteImagesArray = [
@@ -286,19 +283,31 @@ final class GameViewController: UIViewController {
         addShootButton()
         addJumpButton()
         addTapRecognizer()
-//        if control != .gyroscope {
-//            addDirectionButtons()
-//            addShootButton()
-//            addJumpButton()
-//        } else {
-//            addTapRecognizer()
-//        }
         addSpaceship()
         addFire()
         addShield()
         addLaser()
         addStartGameLabel()
         readyStartGame()
+    }
+    
+    private func checkSetting() {
+        if user.settings.sound {
+            sound = true
+        } else {
+            sound = false
+        }
+        if user.settings.speed == .fast {
+            speed = Speed.fast.rawValue
+        } else {
+            speed = Speed.slow.rawValue
+        }
+        if user.settings.control == Control.gyroscope.rawValue {
+            control = .gyroscope
+        } else {
+            control = .buttons
+        }
+        spaceshipImageView.image = UIImage(named: user.settings.spaceship)
     }
     
     private func readyStartGame() {
@@ -347,27 +356,193 @@ final class GameViewController: UIViewController {
         scoreBonus = 100
     }
     
-    private func checkSetting() {
-        if let user = StorageManager.shared.loadUser() {
-            self.user = user
+    private func startLifeTimer() {
+        lifeTimer = .scheduledTimer(
+            withTimeInterval: .standartForRepeatTimer,
+            repeats: true
+        ) { [weak self] _ in
+            guard let self = self else { return }
+            
+            self.checkLife()
+            self.moveLife()
+            self.animateSpaceshipWithGyroscope()
+            self.checkIntersectsLaserWithMeteorite()
+            self.checkIntersectsSpaceshipWithMeteorite(self.intersectionCheck)
+            self.checkIntersectsSpaceshipWithItem(self.intersectionCheck)
+            self.updateResult()
         }
-        if user.settings.sound {
-            sound = true
-        } else {
-            sound = false
-        }
-        if user.settings.speed == .fast {
-            speed = Speed.fast.rawValue
-        } else {
-            speed = Speed.slow.rawValue
-        }
-        if user.settings.control == Control.gyroscope.rawValue {
-            control = .gyroscope
-        } else {
-            control = .buttons
-        }
-        spaceshipImageView.image = UIImage(named: user.settings.spaceship)
     }
+    
+    private func updateResult() {
+        spaceView.insertSubview(topContainerView, at: spaceView.subviews.count - 1)
+        spaceView.insertSubview(bottomContainerView, at: spaceView.subviews.count - 1)
+        score += scoreBoost
+        scoreLabel.text = "\(score)"
+        coinsLabel.text = "\(coins)"
+    }
+    
+    private func saveResultGame() {
+        let date = Date()
+        let formatter = DateFormatter()
+        formatter.dateFormat = .dateFormat
+        let stringDate = formatter.string(from: date)
+        let result = Result(
+            nickname: user.nickname,
+            score: score,
+            speed: user.settings.speed,
+            date: stringDate
+        )
+        let results = updateResultsArray(result)
+        
+        if user.record < score {
+            user.record = score
+        }
+        user.coins += coins
+        StorageManager.shared.saveUser(user)
+        StorageManager.shared.saveResults(results)
+    }
+    
+    private func updateResultsArray(_ result: Result) -> [Result] {
+        var resultsArray = [Result]()
+        
+        if let results = StorageManager.shared.loadResults() {
+            resultsArray = results
+        }
+        resultsArray.append(result)
+        resultsArray = resultsArray.sorted(by: { $0.score > $1.score } )
+        
+        if resultsArray.count > .countResults {
+            resultsArray.removeLast()
+        }
+        return resultsArray
+    }
+    
+    private func playSound(_ soundName: SoundName) {
+        if sound {
+            SoundManager.shared.playSound(soundName)
+        }
+    }
+    
+    private func selectImage(_ imageView: UIImageView, in array: [UIImage?]) {
+        guard var index = array.firstIndex(of: imageView.image) else { return }
+        
+        if index >= array.count - 1 {
+            index = 0
+        } else {
+            index += 1
+        }
+        imageView.image = array[index]
+    }
+    
+    private func backToMenuController() {
+        SoundManager.shared.stopSound()
+        lifeTimer.invalidate()
+        spaceView.subviews.forEach { subview in
+            subview.removeFromSuperview()
+        }
+        delegate?.gameViewControllerClosed()
+        navigationController?.popToRootViewController(animated: true)
+    }
+    
+    //MARK: - checks funcs
+    
+    private func checkLife() {
+        if !life {
+            lifeTimer.invalidate()
+            SoundManager.shared.stopSound()
+            itemImageViewsArray.forEach { item in
+                item.removeFromSuperview()
+            }
+            meteoriteImageViewsArray.forEach { meteorite in
+                meteorite.removeFromSuperview()
+            }
+            view.insertSubview(gameOverView, at: view.subviews.count)
+            gameOverView.addSubview(backButton)
+            resultLabel.text = "\(score)"
+            gameOverView.isHidden = false
+            bottomContainerView.isHidden = true
+            topContainerView.isHidden = true
+            saveResultGame()
+        }
+    }
+    
+    private func checkIntersectsLaserWithMeteorite() {
+        guard let laserPresentationFrame = laserImageView.layer.presentation()?.frame else { return }
+        
+        meteoriteImageViewsArray.forEach { meteorite in
+            if let meteoritePresentationFrame = meteorite.layer.presentation()?.frame,
+               laserPresentationFrame.intersects(meteoritePresentationFrame),
+               laserImageView.frame.origin.y < spaceshipImageView.frame.origin.y,
+               !laserImageView.isHidden {
+                score += scoreBonus * scoreBoost
+                meteoriteImageViewsArray = meteoriteImageViewsArray.filter { $0 != meteorite }
+                laserImageView.isHidden = true
+                meteorite.removeFromSuperview()
+            }
+        }
+    }
+    
+    private func checkIntersectsSpaceshipWithMeteorite(_ intersectionCheck: Bool?) {
+        guard let spaceshipPresentationFrame = spaceshipImageView.layer.presentation()?.frame,
+              let shieldPresentatinFrame = shieldImageView.layer.presentation()?.frame,
+              let check = intersectionCheck,
+              check else { return }
+        
+        meteoriteImageViewsArray.forEach { meteorite in
+            guard let meteoritePresentationFrame = meteorite.layer.presentation()?.frame else { return }
+            
+            if shieldPresentatinFrame.intersects(meteoritePresentationFrame),
+               !shieldImageView.isHidden {
+                score += scoreBonus * scoreBoost
+                shieldImageView.isHidden = true
+                meteoriteImageViewsArray = meteoriteImageViewsArray.filter { $0 != meteorite }
+                meteorite.removeFromSuperview()
+                return
+            }
+            if spaceshipPresentationFrame.intersects(meteoritePresentationFrame) {
+                life = false
+            }
+        }
+    }
+    
+    private func checkIntersectsSpaceshipWithItem(_ intersectionCheck: Bool?) {
+        guard let spaceshipPresentationFrame = spaceshipImageView.layer.presentation()?.frame,
+              let check = intersectionCheck,
+              check else { return }
+        
+        itemImageViewsArray.forEach { item in
+            if let itemPresentationFrame = item.layer.presentation()?.frame,
+               spaceshipPresentationFrame.intersects(itemPresentationFrame) {
+                
+                if shieldImagesArray.contains(item.image) {
+                    shieldImageView.isHidden = false
+                }
+                if item.image == laserImageView.image {
+                    laserImageView.isHidden = false
+                }
+                if heartImagesArray.contains(item.image) {
+                    UIView.animate(withDuration: .standartForAnimate) { [weak self] in
+                        guard let self = self else { return }
+                        
+                        self.lifeView.frame.size.width = self.fullLifeWidth
+                    }
+                }
+                if coinImagesArray.contains(item.image) {
+                    playSound(.coin)
+                    coins += 1
+                }
+                if starImagesArray.contains(item.image) {
+                    playSound(.star)
+                    scoreBoost += 1
+                }
+                score += scoreBonus * scoreBoost
+                itemImageViewsArray = itemImageViewsArray.filter { $0 != item }
+                item.removeFromSuperview()
+            }
+        }
+    }
+    
+    //MARK: - create views funcs
     
     private func addSpace() {
         spaceView.frame = view.frame
@@ -384,38 +559,6 @@ final class GameViewController: UIViewController {
         topSpaceImageView.image = .spaceImage
         topSpaceImageView.contentMode = .center
         spaceView.addSubview(topSpaceImageView)
-    }
-    
-    private func animateSpace() {
-        let duration = 6.5
-        UIView.animate(
-            withDuration: duration * speed,
-            delay: .zero,
-            options: .curveLinear
-        ) { [weak self] in
-            guard let self = self else { return }
-            
-            self.moveSpace(.down)
-        } completion: { [weak self] _ in
-            guard let self = self else { return }
-            
-            self.moveSpace(.up)
-        }
-    }
-    
-    private func moveSpace(_ direction: Direction) {
-        if direction == .down {
-            topSpaceImageView.frame.origin.y = bottomSpaceImageView.frame.origin.y
-            bottomSpaceImageView.frame.origin.y = spaceView.frame.height
-        } else {
-            if !life {
-                repeatButton.isHidden = false
-                return
-            }
-            bottomSpaceImageView.frame.origin.y = spaceView.frame.origin.y
-            topSpaceImageView.frame.origin.y = -bottomSpaceImageView.frame.height
-            animateSpace()
-        }
     }
     
     private func addEdgeViews() {
@@ -455,11 +598,13 @@ final class GameViewController: UIViewController {
     
     private func addDirectionButtons() {
         let size = bottomContainerView.frame.width / 12
-        leftButton.frame = CGRect(
-            x: size,
-            y: bottomContainerView.frame.height - size * 3,
-            width: size / 2,
-            height: size
+        let leftButton = UIButton(
+                frame: CGRect(
+                x: size,
+                y: bottomContainerView.frame.height - size * 3,
+                width: size / 2,
+                height: size
+            )
         )
         leftButton.addTarget(
             self,
@@ -486,11 +631,13 @@ final class GameViewController: UIViewController {
     
     private func addShootButton() {
         let size = bottomContainerView.frame.width / 12
-        shootButton.frame = CGRect(
-            x: bottomContainerView.frame.width / 2 - size / 2,
-            y: rightButton.frame.origin.y,
-            width: size,
-            height: size
+        let shootButton = UIButton(
+            frame:  CGRect(
+                x: bottomContainerView.frame.width / 2 - size / 2,
+                y: rightButton.frame.origin.y,
+                width: size,
+                height: size
+            )
         )
         shootButton.addTarget(
             self,
@@ -505,12 +652,14 @@ final class GameViewController: UIViewController {
     
     private func addJumpButton() {
         let size = bottomContainerView.frame.width / 12
-        jumpButton.frame = CGRect(
-            x: bottomContainerView.frame.width - bottomContainerView.frame.width / 3,
-            y: rightButton.frame.origin.y,
-            width: size,
-            height: size
-        )
+        let jumpButton = UIButton(
+                frame: CGRect(
+                    x: bottomContainerView.frame.width - bottomContainerView.frame.width / 3,
+                    y: rightButton.frame.origin.y,
+                    width: size,
+                    height: size
+                )
+            )
         jumpButton.addTarget(
             self,
             action: #selector(jumpButtonPressed),
@@ -602,18 +751,6 @@ final class GameViewController: UIViewController {
         topContainerView.addSubview(lifeView)
     }
     
-    private func moveLife() {
-        let step = 0.25
-        if lifeView.frame.width < 1 {
-            life = false
-        }
-        UIView.animate(withDuration: .standartForAnimate) { [weak self] in
-            guard let self = self else { return }
-            
-            self.lifeView.frame.size.width -= step
-        }
-    }
-    
     private func addBackButton() {
         backButton.frame = CGRect(
             x: topContainerView.frame.width - scoreLabel.frame.height * 2,
@@ -640,9 +777,154 @@ final class GameViewController: UIViewController {
             width: size,
             height: size
         )
-        sizeForSpaceship = spaceshipImageView.frame.size
+        normalSizeForSpaceship = spaceshipImageView.frame.size
         spaceshipImageView.contentMode = .scaleToFill
         spaceView.addSubview(spaceshipImageView)
+    }
+    
+    private func addShield() {
+        let offset = spaceshipImageView.frame.width / 8
+        shieldImageView.frame = CGRect(
+            x: spaceshipImageView.frame.origin.x - offset,
+            y: spaceshipImageView.frame.origin.y - offset,
+            width: spaceshipImageView.frame.width + offset * 2,
+            height: spaceshipImageView.frame.height + offset * 2
+        )
+        shieldImageView.image = shieldImagesArray.first as? UIImage
+        shieldImageView.contentMode = .scaleToFill
+        shieldImageView.isHidden = true
+        spaceView.addSubview(shieldImageView)
+    }
+    
+    private func addFire() {
+        let size = spaceshipImageView.frame.width / 6
+        fireImageView.frame = CGRect(
+            x: spaceView.frame.width / 2 - size / 2,
+            y: spaceshipImageView.frame.origin.y + spaceshipImageView.frame.height,
+            width: size,
+            height: size * 2
+        )
+        fireImageView.image = fireImagesArray.first as? UIImage
+        spaceView.addSubview(fireImageView)
+    }
+    
+    private func addLaser() {
+        let size = spaceshipImageView.frame.width / 3
+        laserImageView.frame = CGRect(
+            x: spaceView.frame.width / 2 - size / 2,
+            y: spaceshipImageView.frame.origin.y,
+            width: size,
+            height: size
+        )
+        laserImageView.isHidden = true
+        laserImageView.image = UIImage(named: user.settings.laser)
+        spaceView.addSubview(laserImageView)
+    }
+    
+    private func createItem(_ item: Item) -> UIImageView {
+        let size = spaceView.frame.width / 11
+        let itemImageView = UIImageView(
+            frame: CGRect(
+                x: .random(in: leftEdgeView.frame.width...rightEdgeView.frame.origin.x - size),
+                y: -size,
+                width: size,
+                height: size * 0.65
+            )
+        )
+        itemImageView.contentMode = .scaleAspectFit
+        
+        switch item {
+        case .shield:
+            itemImageView.frame.size.height = size
+            itemImageView.image = shieldImagesArray.first as? UIImage
+        case .laser:
+            itemImageView.frame.size.height = size
+            itemImageView.image = UIImage(named: user.settings.laser)
+        case .heart:
+            itemImageView.frame.size.width *= 0.8
+            itemImageView.image = heartImagesArray.first as? UIImage
+        case .coin:
+            itemImageView.frame.size.width = itemImageView.frame.height
+            itemImageView.image = coinImagesArray.first as? UIImage
+        case .star:
+            itemImageView.frame.size.width *= 0.8
+            itemImageView.image = starImagesArray.first as? UIImage
+        }
+        itemImageViewsArray.append(itemImageView)
+        spaceView.insertSubview(itemImageView, belowSubview: spaceshipImageView)
+        return itemImageView
+    }
+    
+    private func createMeteorite() -> UIImageView {
+        let minSize = spaceView.frame.width / 14
+        let maxSize = spaceView.frame.width / 6
+        let size = CGFloat.random(in: minSize...maxSize)
+        let meteoriteImageView = UIImageView(
+            frame: CGRect(
+                x: CGFloat.random(in: leftEdgeView.frame.width...rightEdgeView.frame.origin.x - size),
+                y: -size,
+                width: size,
+                height: size
+            )
+        )
+        if Bool.random() {
+            meteoriteImageView.image = firstMeteoriteImagesArray[
+                Int.random(in: .zero...firstMeteoriteImagesArray.count - 1)
+            ]
+        } else {
+            meteoriteImageView.image = secondMeteoriteImagesArray[
+                Int.random(in: .zero...secondMeteoriteImagesArray.count - 1)
+            ]
+        }
+        meteoriteImageViewsArray.append(meteoriteImageView)
+        spaceView.insertSubview(meteoriteImageView, belowSubview: spaceshipImageView)
+        return meteoriteImageView
+    }
+    
+    //MARK: - move and animate views funcs
+    
+    private func animateSpace() {
+        let duration = 6.5
+        UIView.animate(
+            withDuration: duration * speed,
+            delay: .zero,
+            options: .curveLinear
+        ) { [weak self] in
+            guard let self = self else { return }
+            
+            self.moveSpace(.down)
+        } completion: { [weak self] _ in
+            guard let self = self else { return }
+            
+            self.moveSpace(.up)
+        }
+    }
+    
+    private func moveSpace(_ direction: Direction) {
+        if direction == .down {
+            topSpaceImageView.frame.origin.y = bottomSpaceImageView.frame.origin.y
+            bottomSpaceImageView.frame.origin.y = spaceView.frame.height
+        } else {
+            if !life {
+                repeatButton.isHidden = false
+                return
+            }
+            bottomSpaceImageView.frame.origin.y = spaceView.frame.origin.y
+            topSpaceImageView.frame.origin.y = -bottomSpaceImageView.frame.height
+            animateSpace()
+        }
+    }
+    
+    private func moveLife() {
+        let step = 0.25
+        if lifeView.frame.width < 1 {
+            life = false
+        }
+        UIView.animate(withDuration: .standartForAnimate) { [weak self] in
+            guard let self = self else { return }
+            
+            self.lifeView.frame.size.width -= step
+        }
     }
     
     private func moveSpaceshipWithButtons(_ duration: Direction) {
@@ -805,32 +1087,6 @@ final class GameViewController: UIViewController {
         }
     }
     
-    private func addShield() {
-        let offset = spaceshipImageView.frame.width / 8
-        shieldImageView.frame = CGRect(
-            x: spaceshipImageView.frame.origin.x - offset,
-            y: spaceshipImageView.frame.origin.y - offset,
-            width: spaceshipImageView.frame.width + offset * 2,
-            height: spaceshipImageView.frame.height + offset * 2
-        )
-        shieldImageView.image = shieldImagesArray.first as? UIImage
-        shieldImageView.contentMode = .scaleToFill
-        shieldImageView.isHidden = true
-        spaceView.addSubview(shieldImageView)
-    }
-    
-    private func addFire() {
-        let size = spaceshipImageView.frame.width / 6
-        fireImageView.frame = CGRect(
-            x: spaceView.frame.width / 2 - size / 2,
-            y: spaceshipImageView.frame.origin.y + spaceshipImageView.frame.height,
-            width: size,
-            height: size * 2
-        )
-        fireImageView.image = fireImagesArray.first as? UIImage
-        spaceView.addSubview(fireImageView)
-    }
-    
     private func animateShieldAndFire() {
         Timer.scheduledTimer(
             withTimeInterval: .standartForRepeatTimer / 2,
@@ -847,21 +1103,8 @@ final class GameViewController: UIViewController {
         }
     }
     
-    private func addLaser() {
-        let size = spaceshipImageView.frame.width / 3
-        laserImageView.frame = CGRect(
-            x: spaceView.frame.width / 2 - size / 2,
-            y: spaceshipImageView.frame.origin.y,
-            width: size,
-            height: size
-        )
-        laserImageView.isHidden = true
-        laserImageView.image = UIImage(named: user.settings.laser)
-        spaceView.addSubview(laserImageView)
-    }
-    
     private func shootLaser() {
-        if spaceshipImageView.frame.width != sizeForSpaceship.width { return }
+        if spaceshipImageView.frame.width != normalSizeForSpaceship.width { return }
         if !laserImageView.isHidden {
             SoundManager.shared.playSound(.laser)
             
@@ -890,40 +1133,6 @@ final class GameViewController: UIViewController {
             laserImageView.frame.origin.y = spaceshipImageView.frame.origin.y
             laserImageView.isHidden = true
         }
-    }
-    
-    private func createItem(_ item: Item) -> UIImageView {
-        let size = spaceView.frame.width / 11
-        let itemImageView = UIImageView(
-            frame: CGRect(
-                x: .random(in: leftEdgeView.frame.width...rightEdgeView.frame.origin.x - size),
-                y: -size,
-                width: size,
-                height: size * 0.65
-            )
-        )
-        itemImageView.contentMode = .scaleAspectFit
-        
-        switch item {
-        case .shield:
-            itemImageView.frame.size.height = size
-            itemImageView.image = shieldImagesArray.first as? UIImage
-        case .laser:
-            itemImageView.frame.size.height = size
-            itemImageView.image = UIImage(named: user.settings.laser)
-        case .heart:
-            itemImageView.frame.size.width *= 0.8
-            itemImageView.image = heartImagesArray.first as? UIImage
-        case .coin:
-            itemImageView.frame.size.width = itemImageView.frame.height
-            itemImageView.image = coinImagesArray.first as? UIImage
-        case .star:
-            itemImageView.frame.size.width *= 0.8
-            itemImageView.image = starImagesArray.first as? UIImage
-        }
-        itemImageViewsArray.append(itemImageView)
-        spaceView.insertSubview(itemImageView, belowSubview: spaceshipImageView)
-        return itemImageView
     }
     
     private func animateItem(_ item: UIImageView) {
@@ -1019,32 +1228,6 @@ final class GameViewController: UIViewController {
         animateItem(item)
     }
     
-    private func createMeteorite() -> UIImageView {
-        let minSize = spaceView.frame.width / 14
-        let maxSize = spaceView.frame.width / 6
-        let size = CGFloat.random(in: minSize...maxSize)
-        let meteoriteImageView = UIImageView(
-            frame: CGRect(
-                x: CGFloat.random(in: leftEdgeView.frame.width...rightEdgeView.frame.origin.x - size),
-                y: -size,
-                width: size,
-                height: size
-            )
-        )
-        if Bool.random() {
-            meteoriteImageView.image = firstMeteoriteImagesArray[
-                Int.random(in: .zero...firstMeteoriteImagesArray.count - 1)
-            ]
-        } else {
-            meteoriteImageView.image = secondMeteoriteImagesArray[
-                Int.random(in: .zero...secondMeteoriteImagesArray.count - 1)
-            ]
-        }
-        meteoriteImageViewsArray.append(meteoriteImageView)
-        spaceView.insertSubview(meteoriteImageView, belowSubview: spaceshipImageView)
-        return meteoriteImageView
-    }
-    
     private func animateMeteorite(_ meteorite: UIImageView) {
         let timeInterval = TimeInterval.random(in: 0.05...0.1)
         
@@ -1098,189 +1281,5 @@ final class GameViewController: UIViewController {
             self.meteoriteImageViewsArray = self.meteoriteImageViewsArray.filter { $0 != meteorite }
         }
         animateMeteorite(meteorite)
-    }
-    
-    private func checkLife() {
-        if !life {
-            lifeTimer.invalidate()
-            SoundManager.shared.stopSound()
-            itemImageViewsArray.forEach { item in
-                item.removeFromSuperview()
-            }
-            meteoriteImageViewsArray.forEach { meteorite in
-                meteorite.removeFromSuperview()
-            }
-            view.insertSubview(gameOverView, at: view.subviews.count)
-            gameOverView.addSubview(backButton)
-            resultLabel.text = "\(score)"
-            gameOverView.isHidden = false
-            bottomContainerView.isHidden = true
-            topContainerView.isHidden = true
-            saveResultGame()
-        }
-    }
-    
-    private func checkIntersectsLaserWithMeteorite() {
-        guard let laserPresentationFrame = laserImageView.layer.presentation()?.frame else { return }
-        
-        meteoriteImageViewsArray.forEach { meteorite in
-            if let meteoritePresentationFrame = meteorite.layer.presentation()?.frame,
-               laserPresentationFrame.intersects(meteoritePresentationFrame),
-               laserImageView.frame.origin.y < spaceshipImageView.frame.origin.y,
-               !laserImageView.isHidden {
-                score += scoreBonus * scoreBoost
-                meteoriteImageViewsArray = meteoriteImageViewsArray.filter { $0 != meteorite }
-                laserImageView.isHidden = true
-                meteorite.removeFromSuperview()
-            }
-        }
-    }
-    
-    private func checkIntersectsSpaceshipWithMeteorite(_ intersectionCheck: Bool?) {
-        guard let spaceshipPresentationFrame = spaceshipImageView.layer.presentation()?.frame,
-              let shieldPresentatinFrame = shieldImageView.layer.presentation()?.frame,
-              let check = intersectionCheck,
-              check else { return }
-        
-        meteoriteImageViewsArray.forEach { meteorite in
-            guard let meteoritePresentationFrame = meteorite.layer.presentation()?.frame else { return }
-            
-            if shieldPresentatinFrame.intersects(meteoritePresentationFrame),
-               !shieldImageView.isHidden {
-                score += scoreBonus * scoreBoost
-                shieldImageView.isHidden = true
-                meteoriteImageViewsArray = meteoriteImageViewsArray.filter { $0 != meteorite }
-                meteorite.removeFromSuperview()
-                return
-            }
-            if spaceshipPresentationFrame.intersects(meteoritePresentationFrame) {
-                life = false
-            }
-        }
-    }
-    
-    private func checkIntersectsSpaceshipWithItem(_ intersectionCheck: Bool?) {
-        guard let spaceshipPresentationFrame = spaceshipImageView.layer.presentation()?.frame,
-              let check = intersectionCheck,
-              check else { return }
-        
-        itemImageViewsArray.forEach { item in
-            if let itemPresentationFrame = item.layer.presentation()?.frame,
-               spaceshipPresentationFrame.intersects(itemPresentationFrame) {
-                
-                if shieldImagesArray.contains(item.image) {
-                    shieldImageView.isHidden = false
-                }
-                if item.image == laserImageView.image {
-                    laserImageView.isHidden = false
-                }
-                if heartImagesArray.contains(item.image) {
-                    UIView.animate(withDuration: .standartForAnimate) { [weak self] in
-                        guard let self = self else { return }
-                        
-                        self.lifeView.frame.size.width = self.fullLifeWidth
-                    }
-                }
-                if coinImagesArray.contains(item.image) {
-                    playSound(.coin)
-                    coins += 1
-                }
-                if starImagesArray.contains(item.image) {
-                    playSound(.star)
-                    scoreBoost += 1
-                }
-                score += scoreBonus * scoreBoost
-                itemImageViewsArray = itemImageViewsArray.filter { $0 != item }
-                item.removeFromSuperview()
-            }
-        }
-    }
-    
-    private func startLifeTimer() {
-        lifeTimer = .scheduledTimer(
-            withTimeInterval: .standartForRepeatTimer,
-            repeats: true
-        ) { [weak self] _ in
-            guard let self = self else { return }
-            
-            self.checkLife()
-            self.moveLife()
-            self.animateSpaceshipWithGyroscope()
-            self.checkIntersectsLaserWithMeteorite()
-            self.checkIntersectsSpaceshipWithMeteorite(self.intersectionCheck)
-            self.checkIntersectsSpaceshipWithItem(self.intersectionCheck)
-            self.updateResult()
-        }
-    }
-    
-    private func updateResult() {
-        spaceView.insertSubview(topContainerView, at: spaceView.subviews.count - 1)
-        spaceView.insertSubview(bottomContainerView, at: spaceView.subviews.count - 1)
-        score += scoreBoost
-        scoreLabel.text = "\(score)"
-        coinsLabel.text = "\(coins)"
-    }
-    
-    private func backToMenuController() {
-        SoundManager.shared.stopSound()
-        lifeTimer.invalidate()
-        spaceView.subviews.forEach { subview in
-            subview.removeFromSuperview()
-        }
-        delegate?.gameViewControllerClosed()
-        navigationController?.popToRootViewController(animated: true)
-    }
-    
-    private func selectImage(_ imageView: UIImageView, in array: [UIImage?]) {
-        guard var index = array.firstIndex(of: imageView.image) else { return }
-        
-        if index >= array.count - 1 {
-            index = 0
-        } else {
-            index += 1
-        }
-        imageView.image = array[index]
-    }
-    
-    private func playSound(_ soundName: SoundName) {
-        if sound {
-            SoundManager.shared.playSound(soundName)
-        }
-    }
-    
-    private func saveResultGame() {
-        let date = Date()
-        let formatter = DateFormatter()
-        formatter.dateFormat = .dateFormat
-        let stringDate = formatter.string(from: date)
-        let result = Result(
-            nickname: user.nickname,
-            score: score,
-            speed: user.settings.speed,
-            date: stringDate
-        )
-        let results = updateResultsArray(result)
-        
-        if user.record < score {
-            user.record = score
-        }
-        user.coins += coins
-        StorageManager.shared.saveUser(user)
-        StorageManager.shared.saveResults(results)
-    }
-    
-    private func updateResultsArray(_ result: Result) -> [Result] {
-        var resultsArray = [Result]()
-        
-        if let results = StorageManager.shared.loadResults() {
-            resultsArray = results
-        }
-        resultsArray.append(result)
-        resultsArray = resultsArray.sorted(by: { $0.score > $1.score } )
-        
-        if resultsArray.count > .countResults {
-            resultsArray.removeLast()
-        }
-        return resultsArray
     }
 }

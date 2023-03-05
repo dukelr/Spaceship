@@ -8,7 +8,7 @@
 			<key>CFBundleTypeRole</key>
 			<string>Editor</string>
 			<key>CFBundleURLName</key>
-			<string>duke.H10-2</string>
+			<string>duke.Spaceship</string>
 			<key>CFBundleURLSchemes</key>
 			<array>
 				<string>spaceship</string>

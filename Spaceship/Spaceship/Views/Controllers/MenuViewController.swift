@@ -18,13 +18,13 @@ final class MenuViewController: UIViewController {
     
     //MARK: - var/let
     
-    private var user = User.getDefaultUser()
+    private var user = StorageManager.shared.loadUser() ?? User.getDefaultUser()
     
     //MARK: - lifecycle funcs
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        configureSubviews()
+        setupSubviews()
     }
     
     //MARK: - IBActions
@@ -95,10 +95,7 @@ final class MenuViewController: UIViewController {
         }
     }
     
-    private func configureSubviews() {
-        if let user = StorageManager.shared.loadUser() {
-            self.user = user
-        }
+    private func setupSubviews() {
         nicknameLabel.text = user.nickname
         coinsLabel.text = "\(user.coins)"
         scoreLabel.text = "\(user.record)"
@@ -122,9 +119,8 @@ final class MenuViewController: UIViewController {
 extension MenuViewController: SettingsViewControllerDelegate {
     
     func settingsViewControllerClosed() {
-        if let user = StorageManager.shared.loadUser() {
-            self.user = user
-        }
+        guard let user = StorageManager.shared.loadUser() else { return }
+        
         nicknameLabel.text = user.nickname
         coinsLabel.text = "\(user.coins)"
     }
@@ -133,9 +129,8 @@ extension MenuViewController: SettingsViewControllerDelegate {
 extension MenuViewController: GameViewControllerDelegate {
     
     func gameViewControllerClosed() {
-        if let user = StorageManager.shared.loadUser() {
-            self.user = user
-        }
+        guard let user = StorageManager.shared.loadUser() else { return }
+           
         scoreLabel.text = "\(user.record)"
         coinsLabel.text = "\(user.coins)"
     }

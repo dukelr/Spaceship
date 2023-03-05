@@ -122,10 +122,10 @@
 			children = (
 				ABF8A52329A3EDD0007CB723 /* Sounds */,
 				ABF8A49C299DB465007CB723 /* Localizable */,
+				ABBE5AD229377AC500741BCB /* Fonts */,
 				AB1BE3AD299592F4009AB392 /* Managers */,
 				ABBE5AD429377AD400741BCB /* Classes */,
 				ABBE5AE12937CD3E00741BCB /* Extensions */,
-				ABBE5AD229377AC500741BCB /* Fonts */,
 				ABAF0DD829771021006EEB3C /* Enums */,
 			);
 			path = Models;

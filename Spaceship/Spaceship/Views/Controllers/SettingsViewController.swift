@@ -57,7 +57,7 @@ final class SettingsViewController: UIViewController {
     private var sound = true
     private var speed = Speed.slow
     private var control = Control.buttons
-    private var user = User.getDefaultUser()
+    private var user = StorageManager.shared.loadUser() ?? User.getDefaultUser()
     private var index = Int()
     private let spaceshipImageNamesArray = [
         "spaceship_white",
@@ -120,9 +120,6 @@ final class SettingsViewController: UIViewController {
     //MARK: - flow funcs
     
     private func configureSubviews() {
-        if let user = StorageManager.shared.loadUser() {
-            self.user = user
-        }
         nicknameTextField.text = user.nickname
         nicknameLabel.text = .localized(.nickname)
         speedLabel.text = .localized(.speed)
